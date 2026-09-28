@@ -167,10 +167,33 @@ def collect_news(competitors, days_back=90):
 
 ---
 
+## PH Use Case
+
+This system is designed for Philippine businesses, BPOs, and agencies that need automated competitive monitoring in fast-moving markets. It addresses:
+
+- **Local competitor tracking** — Monitor PH-market peers across e-commerce, logistics, fintech, and services sectors using structured data profiles.
+- **Feature gap analysis** — Compare your product against 3+ competitors across 13 feature dimensions to identify where PH customers expect parity.
+- **Sentiment and hiring signals** — Detect competitor moves (expansion, security incidents, job postings) that affect PH market positioning.
+- **Actionable daily briefs** — Get a prioritized list of recommended actions every morning, formatted for local executive teams.
+
+The pipeline runs with zero external dependencies (stdlib only), making it deployable in any environment.
+
+---
+
+## CI/CD Pipelines
+
+| Workflow | Trigger | What it does |
+|----------|---------|-------------|
+| Test | Every push/PR to `main` | Ruff lint + pytest with 80% coverage threshold |
+| Security | Every push/PR + weekly Monday | pip-audit (vulnerability scan) + Bandit (SAST) |
+
+---
+
 ## License
 
 MIT — see `LICENSE`.
 
 ---
 
-*Portfolio Project 5 — [AgenticPH Labs](https://agenticph-labs.github.io/portfolio)*
+*Portfolio Project 5 — [AgenticPH Labs](https://agenticph-labs.github.io/portfolio)*  
+*Managed by the Hermes Agent System · agenticph.com*

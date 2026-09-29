@@ -2,7 +2,7 @@
 
 **Portfolio Project 5** — An automated agentic workflow that monitors competitors and produces a daily intelligence brief.
 
-[![Status: Live](https://img.shields.io/badge/status-live-22c55e.svg)](https://github.com/agenticph-labs/p5-competitive-intel)
+[![Status: Live](https://img.shields.io/badge/status-live-22c55e.svg)](https://github.com/agenticph-labs/LP5)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -60,8 +60,8 @@ This project implements a complete **collect → analyze → synthesize → repo
 
 ```bash
 # Clone
-git clone https://github.com/agenticph-labs/p5-competitive-intel.git
-cd p5-competitive-intel
+git clone https://github.com/agenticph-labs/LP5.git
+cd LP5
 
 # Run the pipeline (stdout + saved file)
 python pipeline.py

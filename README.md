@@ -1,4 +1,4 @@
-# 📋 Daily Competitive Intelligence Brief
+# LP5: Competitive Intelligence Platform
 
 **Portfolio Project 5** — An automated agentic workflow that monitors competitors and produces a daily intelligence brief.
 
@@ -195,5 +195,5 @@ MIT — see `LICENSE`.
 
 ---
 
-*Portfolio Project 5 — [AgenticPH Labs](https://agenticph-labs.github.io/portfolio)*  
+*Portfolio Project 5 — [AgenticPH](https://agenticph-labs.github.io/portfolio)*  
 *Managed by the Hermes Agent System · agenticph.com*

@@ -9,3 +9,4 @@ venv/
 .venv/
 brief_*.md
 !brief_sample.md
+uv.lock

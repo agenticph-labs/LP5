@@ -6,10 +6,10 @@ Outputs both to stdout and to a dated file.
 """
 
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Any
+
 from analyzer import analyze_all
 from collector import collect_all
-
 
 # ──────────────────────────────────────────────
 # Formatting helpers
@@ -29,7 +29,7 @@ def _score_bar(score: float, width: int = 20) -> str:
     return "█" * filled + "░" * (width - filled)
 
 
-def _positioning_chart(scores: Dict[str, Any]) -> str:
+def _positioning_chart(scores: dict[str, Any]) -> str:
     """Render a simple price-vs-features scatter grid."""
     rows = scores["scores"]
     # Build a primitive grid: features on X, price on Y
@@ -39,7 +39,10 @@ def _positioning_chart(scores: Dict[str, Any]) -> str:
     for r in rows:
         name = r["competitor"][:28]
         chart = _score_bar(r["feature_breadth"], 20)
-        lines.append(f"{name:30s} {r['feature_breadth']:>7.1f}%  {r['pricing_accessibility']:>7.1f}%  {chart}")
+        lines.append(
+            f"{name:30s} {r['feature_breadth']:>7.1f}%  "
+            f"{r['pricing_accessibility']:>7.1f}%  {chart}"
+        )
     lines.append("```")
     return "\n".join(lines)
 
@@ -48,14 +51,17 @@ def _positioning_chart(scores: Dict[str, Any]) -> str:
 # Section builders
 # ──────────────────────────────────────────────
 
-def _executive_summary(data: Dict[str, Any], analysis: Dict[str, Any]) -> str:
+def _executive_summary(data: dict[str, Any], analysis: dict[str, Any]) -> str:
     scores = analysis["scores"]["scores"]
     news = data["news"]
     gaps = analysis["feature_gaps"]["gaps_we_miss"]
 
     top = max(scores, key=lambda s: s["composite_score"])
     our = next(s for s in scores if "(Us)" in s["competitor"])
-    top_threat = max((s for s in scores if "(Us)" not in s["competitor"]), key=lambda s: s["composite_score"])
+    top_threat = max(
+        (s for s in scores if "(Us)" not in s["competitor"]),
+        key=lambda s: s["composite_score"],
+    )
 
     lines = [
         "## 🏁 Executive Summary",
@@ -65,7 +71,8 @@ def _executive_summary(data: Dict[str, Any], analysis: Dict[str, Any]) -> str:
         "",
         f"**Top-ranked competitor:** {top['competitor']} ({top['composite_score']}/100)",
         f"**Our score:** {our['composite_score']}/100",
-        f"**Biggest competitive threat:** {top_threat['competitor']} ({top_threat['composite_score']}/100)",
+        f"**Biggest competitive threat:** {top_threat['competitor']} "
+        f"({top_threat['composite_score']}/100)",
         "",
         f"**News volume:** {len(news)} items in the tracking window.",
         f"**Critical gaps to address:** {len(gaps)} features competitors have that we lack.",
@@ -102,8 +109,10 @@ def _executive_summary(data: Dict[str, Any], analysis: Dict[str, Any]) -> str:
     if aggro:
         for a in aggro:
             takeaways.append(
-                f"- **🚀 Aggressive hiring:** {a['competitor']} has {a['total_openings']} open roles "
-                f"({a['remote_percent']}% remote) — likely expanding product or GTM."
+                f"- **🚀 Aggressive hiring:** {a['competitor']} has "
+                f"{a['total_openings']} open roles "
+                f"({a['remote_percent']}% remote) — "
+                "likely expanding product or GTM."
             )
 
     if not takeaways:
@@ -114,12 +123,13 @@ def _executive_summary(data: Dict[str, Any], analysis: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _score_summary(analysis: Dict[str, Any]) -> str:
+def _score_summary(analysis: dict[str, Any]) -> str:
     scores = analysis["scores"]["scores"]
     lines = [
         "## 📊 Competitive Scorecard",
         "",
-        "Composite scores (0-100) weighted across feature breadth, quality, sentiment, pricing, and scale.",
+        "Composite scores (0-100) weighted across feature breadth, quality, "
+        "sentiment, pricing, and scale.",
         "",
         "| Competitor | Breadth | Quality | Sentiment | Pricing | Scale | **Composite** |",
         "|------------|---------|---------|-----------|---------|-------|---------------|",
@@ -135,7 +145,7 @@ def _score_summary(analysis: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _feature_gap_section(analysis: Dict[str, Any]) -> str:
+def _feature_gap_section(analysis: dict[str, Any]) -> str:
     gaps = analysis["feature_gaps"]["gaps_we_miss"]
     disadv = analysis["feature_gaps"]["quality_disadvantages"]
     advantages = analysis["feature_gaps"]["quality_advantages"]
@@ -148,11 +158,17 @@ def _feature_gap_section(analysis: Dict[str, Any]) -> str:
         lines.append("| Feature | Category | Competitors Offering | Best Quality | Notes |")
         lines.append("|---------|----------|--------------------:|-------------:|-------|")
         for g in gaps[:10]:
-            comps = ", ".join(g["offering_competitors"])
-            lines.append(f"| {g['feature']} | {g['category']} | {g['competitors_offering']} | {g['best_quality_score']}/10 | {g['notes']} |")
+            ", ".join(g["offering_competitors"])
+            lines.append(
+                f"| {g['feature']} | {g['category']} | "
+                f"{g['competitors_offering']} | {g['best_quality_score']}/10 | {g['notes']} |"
+            )
         lines.append("")
     else:
-        lines.append("_No feature gaps detected — we match or exceed competitors on all tracked features._")
+        lines.append(
+            "_No feature gaps detected — we match or exceed competitors on "
+            "all tracked features._"
+        )
         lines.append("")
 
     if disadv:
@@ -161,7 +177,10 @@ def _feature_gap_section(analysis: Dict[str, Any]) -> str:
         lines.append("| Feature | Our Score | Avg Competitor | Gap |")
         lines.append("|---------|----------:|---------------:|----:|")
         for d in disadv[:5]:
-            lines.append(f"| {d['feature']} | {d['our_score']}/10 | {d['avg_competitor_score']}/10 | -{abs(d['margin'])} |")
+            lines.append(
+                f"| {d['feature']} | {d['our_score']}/10 | "
+                f"{d['avg_competitor_score']}/10 | -{abs(d['margin'])} |"
+            )
         lines.append("")
 
     if advantages:
@@ -170,13 +189,16 @@ def _feature_gap_section(analysis: Dict[str, Any]) -> str:
         lines.append("| Feature | Our Score | Avg Competitor | Margin |")
         lines.append("|---------|----------:|---------------:|------:|")
         for a in advantages[:5]:
-            lines.append(f"| {a['feature']} | {a['our_score']}/10 | {a['avg_competitor_score']}/10 | +{a['margin']} |")
+            lines.append(
+                f"| {a['feature']} | {a['our_score']}/10 | "
+                f"{a['avg_competitor_score']}/10 | +{a['margin']} |"
+            )
         lines.append("")
 
     return "\n".join(lines)
 
 
-def _news_section(analysis: Dict[str, Any]) -> str:
+def _news_section(analysis: dict[str, Any]) -> str:
     sent = analysis["sentiment"]
     lines = [
         "## 📰 Media & Press Sentiment",
@@ -202,15 +224,22 @@ def _news_section(analysis: Dict[str, Any]) -> str:
         if s["items"]:
             lines.append(f"**{s['competitor']}**")
             for item in s["items"][:3]:
-                emoji = "🟢" if item["sentiment"] == "positive" else ("🔴" if item["sentiment"] == "negative" else "🟡")
-                lines.append(f"- {emoji} **{item['headline']}** — _{item['source']} ({item['date']})_")
+                emoji = (
+                    "🟢"
+                    if item["sentiment"] == "positive"
+                    else "🔴" if item["sentiment"] == "negative" else "🟡"
+                )
+                lines.append(
+                    f"- {emoji} **{item['headline']}** — "
+                    f"_{item['source']} ({item['date']})_"
+                )
                 lines.append(f"  {item['summary']}")
             lines.append("")
 
     return "\n".join(lines)
 
 
-def _hiring_section(analysis: Dict[str, Any]) -> str:
+def _hiring_section(analysis: dict[str, Any]) -> str:
     hiring = analysis["hiring"]
     lines = [
         "## 💼 Hiring Signals",
@@ -222,7 +251,9 @@ def _hiring_section(analysis: Dict[str, Any]) -> str:
     ]
     for h in hiring["by_competitor"]:
         dept_str = ", ".join(f"{d} ({c})" for d, c in h["departments"].items())
-        signal_emoji = {"aggressive hiring": "🔴", "steady": "🟡", "quiet": "🟢"}.get(h["signal"], "⚪")
+        signal_emoji = {"aggressive hiring": "🔴", "steady": "🟡", "quiet": "🟢"}.get(
+            h["signal"], "⚪"
+        )
         lines.append(
             f"| {h['competitor']:30s} | {h['total_openings']} | {dept_str} | "
             f"{h['remote_percent']}% | {signal_emoji} {h['signal']} |"
@@ -231,7 +262,7 @@ def _hiring_section(analysis: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _pricing_section(analysis: Dict[str, Any]) -> str:
+def _pricing_section(analysis: dict[str, Any]) -> str:
     pricing = analysis["pricing"]["tiers"]
     lines = [
         "## 💰 Pricing Comparison",
@@ -242,7 +273,11 @@ def _pricing_section(analysis: Dict[str, Any]) -> str:
     for p in pricing:
         free = "✅" if p["has_free_tier"] else "❌"
         entry_price = f"${p['entry_price']:.0f}/mo" if p["entry_price"] else "Enterprise"
-        mid_price = f"${p['mid_price']:.0f}/mo" if isinstance(p["mid_price"], (int, float)) else str(p["mid_price"])
+        mid_price = (
+            f"${p['mid_price']:.0f}/mo"
+            if isinstance(p["mid_price"], (int, float))
+            else str(p["mid_price"])
+        )
         lines.append(
             f"| {p['competitor']:30s} | {free} | {entry_price:>10s} | {p['entry_users']:>3d} | "
             f"{mid_price:>10s} | {p['mid_users']:>3d} |"
@@ -251,7 +286,7 @@ def _pricing_section(analysis: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _recommendations(analysis: Dict[str, Any]) -> str:
+def _recommendations(analysis: dict[str, Any]) -> str:
     gaps = analysis["feature_gaps"]["gaps_we_miss"]
     disadv = analysis["feature_gaps"]["quality_disadvantages"]
 
@@ -276,7 +311,8 @@ def _recommendations(analysis: Dict[str, Any]) -> str:
     if disadv:
         for i, d in enumerate(disadv[:2]):
             actions.append(
-                f"{len(actions)+1}. **Improve {d['feature']} quality** — currently {d['our_score']}/10 "
+                f"{len(actions)+1}. **Improve {d['feature']} quality** — "
+                f"currently {d['our_score']}/10 "
                 f"vs competitor average {d['avg_competitor_score']}/10."
             )
 
@@ -313,7 +349,7 @@ def _recommendations(analysis: Dict[str, Any]) -> str:
 # Full report builder
 # ──────────────────────────────────────────────
 
-def generate_brief(data: Dict[str, Any], analysis: Dict[str, Any]) -> str:
+def generate_brief(data: dict[str, Any], analysis: dict[str, Any]) -> str:
     """Assemble the full daily competitive intelligence brief in Markdown."""
     today = datetime.utcnow().strftime("%Y-%m-%d")
 
@@ -340,7 +376,7 @@ def generate_brief(data: Dict[str, Any], analysis: Dict[str, Any]) -> str:
 # Entry point
 # ──────────────────────────────────────────────
 
-def run_pipeline() -> Dict[str, str]:
+def run_pipeline() -> dict[str, str]:
     """Run the full pipeline: collect → analyze → report.
 
     Returns:

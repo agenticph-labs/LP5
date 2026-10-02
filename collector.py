@@ -11,22 +11,22 @@ Each collector function returns structured dicts. In production these
 would hit real APIs (NewsAPI, Greenhouse, Crunchbase, etc.).
 """
 
-from datetime import datetime, timedelta
-from typing import List, Dict, Any
-from sample_data import get_all_competitors, get_our_product, Competitor
+from datetime import datetime
+from typing import Any
 
+from sample_data import Competitor, get_all_competitors, get_our_product
 
 # ──────────────────────────────────────────────
 # Collector: News
 # ──────────────────────────────────────────────
 
-def collect_news(competitors: List[Competitor],
-                 days_back: int = 90) -> List[Dict[str, Any]]:
+def collect_news(competitors: list[Competitor],
+                 days_back: int = 90) -> list[dict[str, Any]]:
     """Return recent news items from each competitor's news feed.
 
     In production this would call NewsAPI, GDELT, or similar.
     """
-    collected: List[Dict[str, Any]] = []
+    collected: list[dict[str, Any]] = []
     for comp in competitors:
         for item in comp.recent_news:
             collected.append({
@@ -46,12 +46,12 @@ def collect_news(competitors: List[Competitor],
 # Collector: Job Postings
 # ──────────────────────────────────────────────
 
-def collect_jobs(competitors: List[Competitor]) -> List[Dict[str, Any]]:
+def collect_jobs(competitors: list[Competitor]) -> list[dict[str, Any]]:
     """Return recent job postings.
 
     In production this would scrape career pages or call Greenhouse/Lever APIs.
     """
-    collected: List[Dict[str, Any]] = []
+    collected: list[dict[str, Any]] = []
     for comp in competitors:
         for job in comp.job_postings:
             collected.append({
@@ -69,7 +69,7 @@ def collect_jobs(competitors: List[Competitor]) -> List[Dict[str, Any]]:
 # Collector: Feature / Pricing Matrix
 # ──────────────────────────────────────────────
 
-def collect_feature_matrix(competitors: List[Competitor]) -> Dict[str, Any]:
+def collect_feature_matrix(competitors: list[Competitor]) -> dict[str, Any]:
     """Build a structured feature-by-competitor matrix.
 
     Returns:
@@ -83,8 +83,8 @@ def collect_feature_matrix(competitors: List[Competitor]) -> Dict[str, Any]:
             }
         }
     """
-    all_features: Dict[str, Dict] = {}
-    categories: Dict[str, List[str]] = {}
+    all_features: dict[str, dict] = {}
+    categories: dict[str, list[str]] = {}
 
     for comp in competitors:
         for feat in comp.features:
@@ -104,7 +104,7 @@ def collect_feature_matrix(competitors: List[Competitor]) -> Dict[str, Any]:
                 all_features[fname]["competitors_offering"] += 1
 
     # Build matrix
-    matrix: Dict[str, Dict] = {}
+    matrix: dict[str, dict] = {}
     for comp in competitors:
         comp_row = {}
         for feat in comp.features:
@@ -127,9 +127,9 @@ def collect_feature_matrix(competitors: List[Competitor]) -> Dict[str, Any]:
 # Collector: Pricing
 # ──────────────────────────────────────────────
 
-def collect_pricing(competitors: List[Competitor]) -> List[Dict[str, Any]]:
+def collect_pricing(competitors: list[Competitor]) -> list[dict[str, Any]]:
     """Return pricing tier data for each competitor."""
-    collected: List[Dict[str, Any]] = []
+    collected: list[dict[str, Any]] = []
     for comp in competitors:
         for tier in comp.pricing:
             collected.append({
@@ -147,7 +147,7 @@ def collect_pricing(competitors: List[Competitor]) -> List[Dict[str, Any]]:
 # Collector: Company fundamentals
 # ──────────────────────────────────────────────
 
-def collect_fundamentals(competitors: List[Competitor]) -> List[Dict[str, Any]]:
+def collect_fundamentals(competitors: list[Competitor]) -> list[dict[str, Any]]:
     """Return high-level company info."""
     return [
         {
@@ -168,7 +168,7 @@ def collect_fundamentals(competitors: List[Competitor]) -> List[Dict[str, Any]]:
 # Unified collector
 # ──────────────────────────────────────────────
 
-def collect_all() -> Dict[str, Any]:
+def collect_all() -> dict[str, Any]:
     """Run all collectors and return a unified data payload."""
     competitors = get_all_competitors()
     return {
@@ -183,7 +183,6 @@ def collect_all() -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    from pprint import pprint
     data = collect_all()
     print(f"Collected at: {data['collected_at']}")
     print(f"Competitors: {data['competitors']}")

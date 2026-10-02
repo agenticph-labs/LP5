@@ -8,22 +8,22 @@ Usage:
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 import streamlit as st
 
-from collector import collect_all
 from analyzer import analyze_all
+from collector import collect_all
 from reporter import (
-    generate_brief,
     _executive_summary,
-    _score_summary,
     _feature_gap_section,
-    _news_section,
     _hiring_section,
+    _news_section,
+    _positioning_chart,
     _pricing_section,
     _recommendations,
-    _positioning_chart,
+    _score_summary,
+    generate_brief,
 )
 
 st.set_page_config(
@@ -55,7 +55,7 @@ if "running" not in st.session_state:
 # ── Pipeline runner ────────────────────────────────────────────────────
 
 
-def run_pipeline() -> Dict[str, Any]:
+def run_pipeline() -> dict[str, Any]:
     """Execute collect → analyze → synthesize and return results."""
     data = collect_all()
     analysis = analyze_all(data)
@@ -119,8 +119,8 @@ if bd is None:
     st.info("Click **Run New Analysis** in the sidebar to generate a brief.")
     st.stop()
 
-data: Dict[str, Any] = bd["data"]
-analysis: Dict[str, Any] = bd["analysis"]
+data: dict[str, Any] = bd["data"]
+analysis: dict[str, Any] = bd["analysis"]
 brief_text: str = st.session_state.brief_text
 
 # ── KPI row ────────────────────────────────────────────────────────────

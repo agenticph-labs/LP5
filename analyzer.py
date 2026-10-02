@@ -10,20 +10,21 @@ Takes collected data and produces structured analysis:
   - Competitive advantage scoring
 """
 
-from typing import Dict, Any, List, Tuple
-from sample_data import get_our_product
+from typing import Any
 
+from sample_data import get_our_product
 
 # ──────────────────────────────────────────────
 # Feature gap analysis
 # ──────────────────────────────────────────────
 
-def analyze_feature_gaps(data: Dict[str, Any]) -> Dict[str, Any]:
+def analyze_feature_gaps(data: dict[str, Any]) -> dict[str, Any]:
     """Identify features competitors offer that we lack, and vice versa.
 
     Returns:
         {
-            "gaps_we_miss": [{"feature", "category", "competitors_offering", "best_quality", "notes"}, ...],
+            "gaps_we_miss": [
+                {"feature", "category", "competitors_offering", "best_quality", "notes"}, ...],
             "gaps_they_miss": [{"feature", "category"}, ...],
             "quality_advantages": [{"feature", "us_score", "avg_competitor_score", "margin"}, ...],
             "quality_disadvantages": [...]
@@ -36,8 +37,8 @@ def analyze_feature_gaps(data: Dict[str, Any]) -> Dict[str, Any]:
     us = matrix.get(our_name, {})
     competitors = {k: v for k, v in matrix.items() if k != our_name}
 
-    gaps_we_miss: List[Dict] = []
-    gaps_they_miss: List[Dict] = []
+    gaps_we_miss: list[dict] = []
+    gaps_they_miss: list[dict] = []
 
     # Gather all unique feature names
     all_features = list(us.keys())
@@ -76,7 +77,7 @@ def analyze_feature_gaps(data: Dict[str, Any]) -> Dict[str, Any]:
                 })
 
     # Quality score comparison
-    quality_comparisons: List[Dict] = []
+    quality_comparisons: list[dict] = []
     for fname in all_features:
         our_score = us[fname]["quality_score"]
         comp_scores = []
@@ -122,14 +123,17 @@ def analyze_feature_gaps(data: Dict[str, Any]) -> Dict[str, Any]:
 # Sentiment analysis
 # ──────────────────────────────────────────────
 
-def analyze_sentiment(data: Dict[str, Any]) -> Dict[str, Any]:
+def analyze_sentiment(data: dict[str, Any]) -> dict[str, Any]:
     """Aggregate news sentiment by competitor."""
     news = data["news"]
-    by_competitor: Dict[str, Dict] = {}
+    by_competitor: dict[str, dict] = {}
 
     for item in news:
         comp = item["competitor"]
-        by_competitor.setdefault(comp, {"positive": 0, "negative": 0, "neutral": 0, "total": 0, "items": []})
+        by_competitor.setdefault(
+            comp,
+            {"positive": 0, "negative": 0, "neutral": 0, "total": 0, "items": []},
+        )
         sent = item["sentiment"]
         by_competitor[comp][sent] = by_competitor[comp].get(sent, 0) + 1
         by_competitor[comp]["total"] += 1
@@ -162,13 +166,13 @@ def analyze_sentiment(data: Dict[str, Any]) -> Dict[str, Any]:
 # Hiring signal analysis
 # ──────────────────────────────────────────────
 
-def analyze_hiring(data: Dict[str, Any]) -> Dict[str, Any]:
+def analyze_hiring(data: dict[str, Any]) -> dict[str, Any]:
     """Analyze job postings for strategic signals.
 
     Key signals: hiring velocity, new departments, remote ratio, seniority.
     """
     jobs = data["jobs"]
-    by_competitor: Dict[str, List] = {}
+    by_competitor: dict[str, list] = {}
     for job in jobs:
         by_competitor.setdefault(job["competitor"], []).append(job)
 
@@ -198,7 +202,7 @@ def analyze_hiring(data: Dict[str, Any]) -> Dict[str, Any]:
 # Pricing comparison
 # ──────────────────────────────────────────────
 
-def analyze_pricing(data: Dict[str, Any]) -> Dict[str, Any]:
+def analyze_pricing(data: dict[str, Any]) -> dict[str, Any]:
     """Compare entry-level and growth-tier pricing across competitors."""
     pricing = data["pricing"]
 
@@ -211,7 +215,10 @@ def analyze_pricing(data: Dict[str, Any]) -> Dict[str, Any]:
             continue
         if p["plan"].lower() == "free":
             analysis[comp]["has_free"] = True
-        elif analysis[comp]["entry"] is None or p["price_monthly"] < analysis[comp]["entry"]["price_monthly"]:
+        elif (
+            analysis[comp]["entry"] is None
+            or p["price_monthly"] < analysis[comp]["entry"]["price_monthly"]
+        ):
             analysis[comp]["entry"] = p
         elif analysis[comp]["mid"] is None and p["price_monthly"] > 0:
             analysis[comp]["mid"] = p
@@ -240,7 +247,7 @@ def analyze_pricing(data: Dict[str, Any]) -> Dict[str, Any]:
 # Overall competitive scoring
 # ──────────────────────────────────────────────
 
-def compute_scores(data: Dict[str, Any]) -> Dict[str, Any]:
+def compute_scores(data: dict[str, Any]) -> dict[str, Any]:
     """Compute a composite competitive score for each competitor.
 
     Factors (weight):
@@ -269,7 +276,14 @@ def compute_scores(data: Dict[str, Any]) -> Dict[str, Any]:
         avg_quality = (sum(quality_scores) / len(quality_scores) * 10) if quality_scores else 0
 
         # --- Sentiment (0-100) ---
-        sent_data = next((s for s in sentiment["by_competitor"] if s["competitor"] == comp_name), None)
+        sent_data = next(
+            (
+                s
+                for s in sentiment["by_competitor"]
+                if s["competitor"] == comp_name
+            ),
+            None,
+        )
         if sent_data:
             sent_norm = max(0, min(100, 50 + sent_data["sentiment_score"] * 10))
         else:
@@ -322,7 +336,7 @@ def compute_scores(data: Dict[str, Any]) -> Dict[str, Any]:
 # Run all analyses
 # ──────────────────────────────────────────────
 
-def analyze_all(data: Dict[str, Any]) -> Dict[str, Any]:
+def analyze_all(data: dict[str, Any]) -> dict[str, Any]:
     """Execute all analysis modules and return combined results."""
     return {
         "feature_gaps": analyze_feature_gaps(data),
@@ -334,8 +348,8 @@ def analyze_all(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
+
     from collector import collect_all
-    from pprint import pprint
 
     raw = collect_all()
     analysis = analyze_all(raw)

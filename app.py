@@ -7,4 +7,3 @@ Usage:
     streamlit run streamlit_ui.py
 """
 
-from streamlit_ui import *

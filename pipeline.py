@@ -15,9 +15,9 @@ Usage:
     python pipeline.py --watch                # Stub: continuous monitoring loop
 """
 
-import sys
-import json
 import argparse
+import json
+import sys
 from datetime import datetime
 
 
@@ -82,8 +82,8 @@ def run_pipeline(stdout_only: bool = False) -> dict:
 
 def run_as_json():
     """Output analysis as JSON (useful for downstream tooling)."""
-    from collector import collect_all
     from analyzer import analyze_all
+    from collector import collect_all
     data = collect_all()
     analysis = analyze_all(data)
     output = {
